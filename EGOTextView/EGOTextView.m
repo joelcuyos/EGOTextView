@@ -348,7 +348,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)setFont:(UIFont *)font {
     
-    UIFont *oldFont = _font;
     _font = font;
     
     CTFontRef ctFont = CTFontCreateWithName((__bridge CFStringRef) self.font.fontName, self.font.pointSize, NULL);  
@@ -373,9 +372,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)setAttributedString:(NSAttributedString*)string {
 
-    NSAttributedString *aString = _attributedString;
     _attributedString = [string copy];
-    aString = nil;
     
     NSRange range = NSMakeRange(0, _attributedString.string.length);
     if (!_editing && !_editable) {
