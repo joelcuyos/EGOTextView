@@ -32,8 +32,8 @@
 
 }
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
+@property (nonatomic) IBOutlet UIWindow *window;
 
-@property (nonatomic, retain) IBOutlet EGOTextView_DemoViewController *viewController;
+@property (nonatomic) IBOutlet EGOTextView_DemoViewController *viewController;
 
 @end
