@@ -55,6 +55,20 @@
 
 }
 
+- (void) viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    UIMenuItem *item = [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"My Menu", nil) action:@selector(additionalMenuAction:)];
+    UIMenuController* mc = [UIMenuController sharedMenuController];
+    mc.menuItems = [NSArray arrayWithObject:item];
+}
+
+- (IBAction)additionalMenuAction:(id)sender
+{
+    NSLog(@"additionalMenuAction:");
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     return YES;
 }

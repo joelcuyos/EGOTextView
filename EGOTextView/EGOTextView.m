@@ -25,6 +25,7 @@
 
 #import "EGOTextView.h"
 #import <QuartzCore/QuartzCore.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 NSString * const EGOTextAttachmentAttributeName = @"com.enormego.EGOTextAttachmentAttribute";
 NSString * const EGOTextAttachmentPlaceholderString = @"\uFFFC";
@@ -173,6 +174,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)scanAttachments;
 - (void)showMenu;
 - (CGRect)menuPresentationRect;
+- (void) replaceSpellCheckingMenuItemsWithItems:(NSArray*)inItems inController:(UIMenuController*)inMenuController;
 
 + (UIColor *)selectionColor;
 + (UIColor *)spellingSelectionColor;
@@ -753,7 +755,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                     returnRange = subStringRange;
                     *stop = YES;
                 }
-                
+                else {
+                    returnRange = subStringRange;
+                }
             }];
             
             break;
@@ -841,7 +845,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
         CTLineRef line = (CTLineRef)[lines objectAtIndex:i];
         CFRange cfRange = CTLineGetStringRange(line);
-        NSRange range = NSMakeRange(range.location == kCFNotFound ? NSNotFound : cfRange.location, cfRange.length);
+        NSRange range = NSMakeRange(cfRange.location == kCFNotFound ? NSNotFound : cfRange.location, cfRange.length);
                 
         if (index >= range.location && index <= range.location+range.length) {
 
@@ -1363,7 +1367,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:1];
     
     CTFontRef ctFont = (CTFontRef)[attribs valueForKey:(NSString*)kCTFontAttributeName];
-    UIFont *font = [UIFont fontWithName:(NSString*)CTFontCopyFamilyName(ctFont) size:CTFontGetSize(ctFont)];
+    CFStringRef familyName = CTFontCopyFamilyName(ctFont);
+    UIFont *font = [UIFont fontWithName:(NSString*)familyName size:CTFontGetSize(ctFont)];
+    if (familyName) { CFRelease(familyName); }
     
     [dictionary setObject:font forKey:UITextInputTextFontKey];
     
@@ -2014,6 +2020,32 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     
 }
 
+- (void) replaceSpellCheckingMenuItemsWithItems:(NSArray*)inItems inController:(UIMenuController*)inMenuController
+{
+    NSMutableArray *itemsToRetain = [[NSMutableArray alloc] init];
+    if (0 < [inItems count])
+    {
+        [itemsToRetain addObjectsFromArray:inItems];
+    }
+    
+    for (UIMenuItem *item in [inMenuController menuItems])
+    {
+        if (NO == [NSStringFromSelector(item.action) hasPrefix:@"spellCheckMenu"])
+        {
+            [itemsToRetain addObject:item];
+        }
+    }
+    
+    if (0 < [itemsToRetain count])
+    {
+        [inMenuController setMenuItems:itemsToRetain];
+    }
+    else
+    {
+        [inMenuController setMenuItems:nil];
+    }
+}
+
 - (void)showMenu {
     
     UIMenuController *menuController = [UIMenuController sharedMenuController];
@@ -2023,7 +2055,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [menuController setMenuItems:nil];
+        [self replaceSpellCheckingMenuItemsWithItems:nil inController:menuController];
         [menuController setTargetRect:[self menuPresentationRect] inView:self];
         [menuController update];
         [menuController setMenuVisible:YES animated:YES]; 
@@ -2112,7 +2144,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             }
         }
         
-        [menuController setMenuItems:items];  
+        [self replaceSpellCheckingMenuItemsWithItems:items inController:menuController];
         [items release];
         
         
@@ -2120,7 +2152,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     } else {
         
         UIMenuItem *item = [[UIMenuItem alloc] initWithTitle:@"No Replacements Found" action:@selector(spellCheckMenuEmpty:)];
-        [menuController setMenuItems:[NSArray arrayWithObject:item]];
+        [self replaceSpellCheckingMenuItemsWithItems:[NSArray arrayWithObject:item] inController:menuController];
         [item release];        
         
     }
@@ -2151,7 +2183,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     } else if ((action == @selector(select:) || action == @selector(selectAll:))) {
         return (_selectedRange.length==0 && [self hasText]);
     } else if (action == @selector(paste:)) {
-        return (_editing && [[UIPasteboard generalPasteboard] containsPasteboardTypes:[NSArray arrayWithObject:@"public.utf8-plain-text"]]);
+        return (_editing && [[UIPasteboard generalPasteboard] containsPasteboardTypes:[NSArray arrayWithObject:(id)kUTTypeUTF8PlainText]]);
     } else if (action == @selector(delete:)) {
         return NO;
     }
@@ -2178,8 +2210,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     
     self.correctionRange = NSMakeRange(NSNotFound, 0);
     self.menuItemActions = nil;
-    [sender setMenuItems:nil];
-
+    [self replaceSpellCheckingMenuItemsWithItems:nil inController:sender];
 }
 
 - (void)spellCheckMenuEmpty:(id)sender {
@@ -2199,7 +2230,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)paste:(id)sender {
     
-    NSString *pasteText = [[UIPasteboard generalPasteboard] valueForPasteboardType:@"public.utf8-plain-text"];
+    NSString *pasteText = [[UIPasteboard generalPasteboard] valueForPasteboardType:(id)kUTTypeUTF8PlainText];
     
     if (pasteText!=nil) {
         [self insertText:pasteText];
@@ -2229,7 +2260,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)cut:(id)sender {
     
     NSString *string = [_attributedString.string substringWithRange:_selectedRange];
-    [[UIPasteboard generalPasteboard] setValue:string forPasteboardType:@"public.utf8-plain-text"];
+    [[UIPasteboard generalPasteboard] setValue:string forPasteboardType:(id)kUTTypeUTF8PlainText];
     
     [_mutableAttributedString setAttributedString:self.attributedString];
     [_mutableAttributedString deleteCharactersInRange:_selectedRange];
@@ -2245,7 +2276,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)copy:(id)sender {
     
     NSString *string = [self.attributedString.string substringWithRange:_selectedRange];
-    [[UIPasteboard generalPasteboard] setValue:string forPasteboardType:@"public.utf8-plain-text"];
+    [[UIPasteboard generalPasteboard] setValue:string forPasteboardType:(id)kUTTypeUTF8PlainText];
     
 }
 

@@ -28,6 +28,7 @@
 		03FF5EEE135CA4DA00268656 /* EGOTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03FF5EED135CA4DA00268656 /* EGOTextView.m */; };
 		03FF5EFB135CA6AC00268656 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03FF5EFA135CA6AC00268656 /* QuartzCore.framework */; };
 		03FF5EFD135CA6B200268656 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03FF5EFC135CA6B200268656 /* CoreText.framework */; };
+		DA3F3693159D8E4600908630 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA3F3692159D8E4600908630 /* MobileCoreServices.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +59,7 @@
 		03FF5EED135CA4DA00268656 /* EGOTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EGOTextView.m; sourceTree = "<group>"; };
 		03FF5EFA135CA6AC00268656 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		03FF5EFC135CA6B200268656 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		DA3F3692159D8E4600908630 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA3F3693159D8E4600908630 /* MobileCoreServices.framework in Frameworks */,
 				03FF5EFD135CA6B200268656 /* CoreText.framework in Frameworks */,
 				03FF5EFB135CA6AC00268656 /* QuartzCore.framework in Frameworks */,
 				03FF5ECC135CA49D00268656 /* UIKit.framework in Frameworks */,
@@ -102,6 +105,7 @@
 		03FF5EBC135CA49D00268656 = {
 			isa = PBXGroup;
 			children = (
+				DA3F3692159D8E4600908630 /* MobileCoreServices.framework */,
 				03FF5EEB135CA4AC00268656 /* EGOTextView */,
 				03FF5ED1135CA49D00268656 /* EGOTextView_Demo */,
 				03FF5ECA135CA49D00268656 /* Frameworks */,
