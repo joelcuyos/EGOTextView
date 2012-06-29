@@ -1220,9 +1220,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         case UITextLayoutDirectionLeft:
             newPos -= offset;
             break;
-        UITextLayoutDirectionUp: // not supported right now
+        case UITextLayoutDirectionUp: // not supported right now
             break; 
-        UITextLayoutDirectionDown: // not supported right now
+        case UITextLayoutDirectionDown: // not supported right now
             break;
         default:
             break;
@@ -1271,15 +1271,16 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (UITextPosition *)positionWithinRange:(UITextRange *)range farthestInDirection:(UITextLayoutDirection)direction {
 
     EGOIndexedRange *r = (EGOIndexedRange *)range;
-    NSInteger pos = r.range.location;
+    NSInteger pos;
     
     switch (direction) {
         case UITextLayoutDirectionUp:
         case UITextLayoutDirectionLeft:
+        default:
             pos = r.range.location;
             break;
         case UITextLayoutDirectionRight:
-        case UITextLayoutDirectionDown:            
+        case UITextLayoutDirectionDown:
             pos = r.range.location + r.range.length;
             break;
     }
@@ -1290,7 +1291,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (UITextRange *)characterRangeByExtendingPosition:(UITextPosition *)position inDirection:(UITextLayoutDirection)direction {
 
     EGOIndexedPosition *pos = (EGOIndexedPosition *)position;
-    NSRange result = NSMakeRange(pos.index, 1);
+    NSRange result;
     
     switch (direction) {
         case UITextLayoutDirectionUp:
@@ -1299,6 +1300,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             break;
         case UITextLayoutDirectionRight:
         case UITextLayoutDirectionDown:            
+        default:
             result = NSMakeRange(pos.index, 1);
             break;
     }
@@ -2044,6 +2046,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     {
         [inMenuController setMenuItems:nil];
     }
+    [itemsToRetain release];
 }
 
 - (void)showMenu {
